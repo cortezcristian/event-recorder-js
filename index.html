@@ -1,0 +1,251 @@
+<!doctype html>
+<html lang="us">
+<head>
+	<meta charset="utf-8">
+	<title>jQuery UI Example Page</title>
+	<link href="./css/smoothness/jquery-ui-1.10.3.custom.css" rel="stylesheet">
+	<script src="./js/jquery-1.9.1.js"></script>
+	<script src="./js/jquery-ui-1.10.3.custom.js"></script>
+	<script src="./timeline.js"></script>
+	<script src="jquery.sendkeys.js"></script>
+	<script src="bililiteRange.js"></script>
+	<script>
+	$(function() {
+		
+		$( "#slider" ).slider({
+            range: "min",
+            animate: true
+		});
+		
+		// Hover states on the static widgets
+		$( "#dialog-link, #icons li" ).hover(
+			function() {
+				$( this ).addClass( "ui-state-hover" );
+			},
+			function() {
+				$( this ).removeClass( "ui-state-hover" );
+			}
+		);
+
+
+        //Timeline
+        var timeTotal = 5000;
+
+        window.t = t = new Timeline({length: timeTotal, frequency:10 });
+
+        //Setting up recording flag
+        t.recording = true;
+
+        //Markers
+        var m1 = {
+            time: 500,
+            forward: function(){ console.log("Do action"); },    
+            backward: function(){ console.log("Undo action"); },    
+        }
+
+        t.markers.push(m1);
+
+        //jQuery('input').focus().trigger(jQuery.Event('keyup', {which: 113,which: 113, charCode: 113}));
+        //Play timeline
+
+        //t.play();
+
+        //Tick event
+        t.on('tick', function(){
+            var pos = parseInt(t.position()/t.length()*100);
+            console.log(t.position(), pos);    
+            $('#slider').slider({ value: pos });
+        });
+
+        t.on('end', function(){
+            console.log(t, t.markers);
+            console.log("Finished");
+            $('ul.markers').empty();  
+            $.each(t.markers, function(i,v){
+                console.log('<li>'+v.time+' - '+JSON.stringify(v)+'</li>');
+                $('ul.markers').append('<li>'+v.time+' - '+JSON.stringify(v)+'</li>');
+            });
+        });
+
+        setTimeout(function(){
+            //console.log(t);
+            //Change position
+            //t.position(100);
+            //Pause
+            //t.pause();
+        }, 6000);
+        
+        //Timeline controls
+        $('.ui-icon-play').click(function(){
+            if(!t.playing){
+                t.play();
+            }
+        });
+        $('.ui-icon-pause').click(function(){
+            if(t.playing){
+                t.pause();
+            }
+        });
+        $('.ui-icon-stop').click(function(){
+            if(t.playing){
+                t.pause();
+            }
+            $('#slider').slider({value:0});
+            t.position(0);
+        });
+        $('#slider').on('slidestop', function(event,ui){
+            //console.log(event,ui);
+            t.position(ui.value/100*t.length());
+        });
+        $('.ui-icon-bullet').click(function(){
+            if(t.playing){
+                t.pause();
+            }
+            t.recording = true;
+            $('.recording-status').text("Recording...");
+        });
+        $('.ui-icon-radio-off').click(function(){
+            if(t.playing){
+                t.pause();
+            }
+            t.recording = false;
+            $('.recording-status').text("...");
+        });
+
+        //Application Under test
+        $('#aut').keyup(function(event){
+            console.log(event);
+            //create markers
+            var marker = {
+                time : t.position(),
+                forward: function(){ 
+                    var l = String.fromCharCode(event.which);
+                    console.log("Insert Letter"); 
+                    if(!t.recording)
+                        $('#aut').sendkeys(l);
+                },    
+                backward: function(){ 
+                    console.log("Restore Action", $('#aut').val());
+                    var text = $('#aut').val();
+                    //if(!t.recording)
+                    $('#aut').val(text.substring(0,text.length - 1));
+                }
+            }
+
+            t.markers.push(marker);
+        });
+	});
+	</script>
+	<style>
+	body{
+		font: 62.5% "Trebuchet MS", sans-serif;
+		margin: 50px;
+	}
+	.demoHeaders {
+		margin-top: 2em;
+	}
+	#dialog-link {
+		padding: .4em 1em .4em 20px;
+		text-decoration: none;
+		position: relative;
+	}
+	#dialog-link a.ui-icon {
+		margin: 0 5px 0 0;
+		position: absolute;
+		left: .2em;
+		top: 50%;
+		margin-top: -8px;
+	}
+	#icons {
+		margin: 0;
+		padding: 0;
+	}
+	#icons li {
+		margin: 2px;
+		position: relative;
+		padding: 4px 0;
+		cursor: pointer;
+		float: left;
+		list-style: none;
+	}
+	#icons a.ui-icon {
+		float: left;
+		margin: 0 4px;
+	}
+	.fakewindowcontain .ui-widget-overlay {
+		position: absolute;
+	}
+	</style>
+</head>
+<body>
+
+
+<h1>Event Recorder JS</h1>
+
+
+
+
+
+
+
+<h2 class="demoHeaders">Application Under Test</h2>
+
+<input type="text" value="" id="aut" />
+
+
+
+<h2 class="demoHeaders">Actions</h2>
+<ul id="icons" class="ui-widget ui-helper-clearfix">
+	<li class="ui-state-default ui-corner-all" title=".ui-icon-play"><a class="ui-icon ui-icon-play"></a></li>
+	<li class="ui-state-default ui-corner-all" title=".ui-icon-pause"><a class="ui-icon ui-icon-pause"></a></li>
+	<li class="ui-state-default ui-corner-all" title=".ui-icon-stop"><a class="ui-icon ui-icon-stop"></a></li>
+	<li class="ui-state-default ui-corner-all" title=".ui-icon-bullet"><a class="ui-icon ui-icon-bullet"></a></li>
+	<li class="ui-state-default ui-corner-all" title=".ui-icon-radio-off"><a class="ui-icon ui-icon-radio-off"></a></li>
+	<li class="recording-status">Recording...</li>
+    <!--
+	<li class="ui-state-default ui-corner-all" title=".ui-icon-seek-next"><a class="ui-icon ui-icon-seek-next"></a></li>
+	<li class="ui-state-default ui-corner-all" title=".ui-icon-seek-prev"><a class="ui-icon ui-icon-seek-prev"></a></li>
+	<li class="ui-state-default ui-corner-all" title=".ui-icon-seek-end"><a class="ui-icon ui-icon-seek-end"></a></li>
+	<li class="ui-state-default ui-corner-all" title=".ui-icon-seek-first"><a class="ui-icon ui-icon-seek-first"></a></li>
+    -->
+</ul>
+
+
+<!-- Slider -->
+<h2 class="demoHeaders">Timeline</h2>
+<div id="slider"></div>
+
+
+
+
+
+
+<!-- Highlight / Error -->
+<h2 class="demoHeaders">Action / Undo Action</h2>
+<ul class="markers">
+</ul>
+<div class="ui-widget">
+	<div class="ui-state-highlight ui-corner-all" style="margin-top: 20px; padding: 0 .7em;">
+		<p><span class="ui-icon ui-icon-info" style="float: left; margin-right: .3em;"></span>
+		<strong>Hey!</strong> 
+            <ol>
+                <li>Hit Play</li>
+                <li>Type something like: Hello World</li>
+                <li>Make sure you stopped recording</li>
+                <li>Go to the begining of the timeline and watch your activity</li>
+            </ol>
+        </p>
+	</div>
+</div>
+<br>
+    <!--
+<div class="ui-widget">
+	<div class="ui-state-error ui-corner-all" style="padding: 0 .7em;">
+		<p><span class="ui-icon ui-icon-alert" style="float: left; margin-right: .3em;"></span>
+		<strong>Alert:</strong> Sample ui-state-error style.</p>
+	</div>
+</div>
+    -->
+
+</body>
+</html>
