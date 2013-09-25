@@ -5,5 +5,4 @@ Basically records keyboard and mouse events, and let you play them back in a tim
 
 Features to be added:
 Stop Recording on timeline end
-Resolve characters s S :
 Make the application under test a form

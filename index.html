@@ -113,16 +113,18 @@
         });
 
         //Application Under test
-        $('#aut').keyup(function(event){
+        $('#aut').keypress(function(event){
             console.log(event);
             //create markers
             var marker = {
                 time : t.position(),
                 forward: function(){ 
-                    var l = String.fromCharCode(event.which);
-                    console.log("Insert Letter"); 
-                    if(!t.recording)
+                    var l = String.fromCharCode(event.keyCode? event.keyCode:event.which);
+                    console.log("Insert Letter:"+l); 
+                    if(!t.recording){
+                        console.log("Sending key:"+l); 
                         $('#aut').sendkeys(l);
+                    }
                 },    
                 backward: function(){ 
                     console.log("Restore Action", $('#aut').val());
@@ -132,7 +134,9 @@
                 }
             }
 
-            t.markers.push(marker);
+            if(t.recording){
+                t.markers.push(marker);
+            }
         });
 	});
 	</script>
