@@ -65,6 +65,8 @@
                 console.log('<li>'+v.time+' - '+JSON.stringify(v)+'</li>');
                 $('ul.markers').append('<li>'+v.time+' - '+JSON.stringify(v)+'</li>');
             });
+            //Stop Recording
+            $('.ui-icon-radio-off').click();
         });
 
         setTimeout(function(){
@@ -138,6 +140,13 @@
                 t.markers.push(marker);
             }
         });
+
+        $('#aut').focus(function(event){
+            if(t.recording && !t.playing){
+                t.play();
+            }
+        });
+
 	});
 	</script>
 	<style>
@@ -233,9 +242,7 @@
 		<p><span class="ui-icon ui-icon-info" style="float: left; margin-right: .3em;"></span>
 		<strong>Hey!</strong> 
             <ol>
-                <li>Hit Play</li>
                 <li>Type something like: Hello World</li>
-                <li>Make sure you stopped recording</li>
                 <li>Go to the begining of the timeline and watch your activity</li>
             </ol>
         </p>
